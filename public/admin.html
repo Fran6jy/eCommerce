@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin · The Black Rose Signature</title>
+    <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                colors: { black:'#0A0A0A', burgundy:'#3B0A0A', 'burgundy-dark':'#2A0505', crimson:'#C8102E', gold:'#D4AF37', ivory:'#F5F1E8' },
+                fontFamily: { serif:['"Cormorant Garamond"','serif'], sans:['Montserrat','sans-serif'] },
+            } },
+        };
+    </script>
+    <style>
+        body { background:#0A0A0A; color:#F5F1E8; }
+        ::-webkit-scrollbar { width:8px; height:8px; }
+        ::-webkit-scrollbar-thumb { background:#D4AF37; border-radius:4px; }
+        ::-webkit-scrollbar-track { background:#0A0A0A; }
+        input:focus, select:focus, textarea:focus { outline:none; border-color:#D4AF37; }
+        .modal-open { overflow:hidden; }
+    </style>
+</head>
+<body class="font-sans">
+
+    <!-- ============ LOGIN ============ -->
+    <div id="loginView" class="min-h-screen flex items-center justify-center px-6">
+        <div class="w-full max-w-sm">
+            <div class="text-center mb-10">
+                <div class="text-5xl mb-3">🌹</div>
+                <h1 class="font-serif text-3xl tracking-[0.15em]">Admin Console</h1>
+                <p class="text-ivory/40 text-sm mt-1 tracking-wider uppercase">The Black Rose Signature</p>
+            </div>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-ivory/50 mb-2">Username</label>
+                    <input id="username" type="text" autocomplete="username" required class="w-full bg-black border border-gold/30 px-4 py-3 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-ivory/50 mb-2">Password</label>
+                    <input id="password" type="password" autocomplete="current-password" required class="w-full bg-black border border-gold/30 px-4 py-3 text-sm">
+                </div>
+                <p id="loginError" class="text-crimson text-sm hidden"></p>
+                <button type="submit" class="w-full py-3 bg-gold text-black uppercase tracking-[0.15em] text-sm hover:bg-crimson hover:text-white transition-all duration-300">Sign In</button>
+            </form>
+            <p class="text-center text-ivory/30 text-xs mt-6"><a href="/" class="hover:text-gold">← Back to store</a></p>
+        </div>
+    </div>
+
+    <!-- ============ DASHBOARD ============ -->
+    <div id="dashboardView" class="hidden min-h-screen">
+        <!-- Top bar -->
+        <header class="border-b border-gold/15 sticky top-0 bg-black/95 backdrop-blur z-30">
+            <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🌹</span>
+                    <div>
+                        <h1 class="font-serif text-xl tracking-[0.12em] leading-none">Admin Console</h1>
+                        <p class="text-ivory/40 text-[11px] uppercase tracking-wider mt-0.5">Inventory & Catalogue</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 text-sm">
+                    <span id="storageBadge" class="hidden sm:inline px-3 py-1 border border-gold/30 text-gold text-xs uppercase tracking-wider"></span>
+                    <a href="/" target="_blank" class="text-ivory/60 hover:text-gold transition-colors">View store ↗</a>
+                    <button id="logoutBtn" class="text-ivory/60 hover:text-crimson transition-colors uppercase tracking-wider text-xs">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-6 py-8">
+            <!-- Stats -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="border border-gold/15 p-5">
+                    <p class="text-ivory/40 text-xs uppercase tracking-wider mb-2">Products</p>
+                    <p id="statProducts" class="font-serif text-3xl text-gold">—</p>
+                </div>
+                <div class="border border-gold/15 p-5">
+                    <p class="text-ivory/40 text-xs uppercase tracking-wider mb-2">Units in stock</p>
+                    <p id="statUnits" class="font-serif text-3xl text-gold">—</p>
+                </div>
+                <div class="border border-gold/15 p-5">
+                    <p class="text-ivory/40 text-xs uppercase tracking-wider mb-2">Inventory value</p>
+                    <p id="statValue" class="font-serif text-3xl text-gold">—</p>
+                </div>
+                <div class="border border-gold/15 p-5">
+                    <p class="text-ivory/40 text-xs uppercase tracking-wider mb-2">Low / out of stock</p>
+                    <p id="statLow" class="font-serif text-3xl text-crimson">—</p>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                <input id="searchBox" type="text" placeholder="Search products…" class="bg-black border border-gold/30 px-4 py-2 text-sm w-full sm:w-72">
+                <button id="addBtn" class="px-5 py-2 bg-gold text-black uppercase tracking-wider text-sm hover:bg-crimson hover:text-white transition-all whitespace-nowrap">+ Add Product</button>
+            </div>
+
+            <!-- Table -->
+            <div class="border border-gold/15 overflow-x-auto">
+                <table class="w-full text-sm min-w-[760px]">
+                    <thead class="bg-burgundy-dark/40 text-ivory/50 uppercase text-xs tracking-wider">
+                        <tr>
+                            <th class="text-left font-normal px-4 py-3">Product</th>
+                            <th class="text-left font-normal px-4 py-3">Category</th>
+                            <th class="text-right font-normal px-4 py-3">Price</th>
+                            <th class="text-center font-normal px-4 py-3">Stock</th>
+                            <th class="text-center font-normal px-4 py-3">Status</th>
+                            <th class="text-right font-normal px-4 py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <p id="emptyState" class="hidden text-center text-ivory/40 py-12">No products match your search.</p>
+        </main>
+    </div>
+
+    <!-- ============ PRODUCT MODAL ============ -->
+    <div id="productModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="max-w-2xl mx-auto mt-10 mb-10 bg-black border border-gold/25">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gold/15">
+                <h2 id="modalTitle" class="font-serif text-2xl">Add Product</h2>
+                <button id="closeModal" class="text-ivory/60 hover:text-gold text-2xl leading-none">&times;</button>
+            </div>
+            <form id="productForm" class="p-6 grid sm:grid-cols-2 gap-5">
+                <input type="hidden" id="f_id">
+                <div class="sm:col-span-2">
+                    <label class="block text-xs uppercase tracking-wider text-ivory/50 mb-2">Name *</label>
+                    <input id="f_name" type="text" required class="w-full bg-black border border-gold/30 px-4 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-ivory/50 mb-2">Category</label>
+                    <select id="f_category" class="w-full bg-black border border-gold/30 px-4 py-2.5 text-sm">
+                        <option>Apparel</option><option>Accessories</option><option>Fragrance</option><option>Home</option><option>Signature</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-ivory/50 mb-2">Price ($) *</label>
+                    <input id="f_price" type="number" min="0" step="1" required class="w-full bg-black border border-gold/30 px-4 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-ivory/50 mb-2">Stock</label>
+                    <input id="f_stock" type="number" min="0" step="1" value="0" class="w-full bg-black border border-gold/30 px-4 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-ivory/50 mb-2">Sizes (comma separated)</label>
+                    <input id="f_sizes" type="text" placeholder="S, M, L" class="w-full bg-black border border-gold/30 px-4 py-2.5 text-sm">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs uppercase tracking-wider text-ivory/50 mb-2">Image URL</label>
+                    <input id="f_image" type="url" placeholder="https://…" class="w-full bg-black border border-gold/30 px-4 py-2.5 text-sm">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs uppercase tracking-wider text-ivory/50 mb-2">Description</label>
+                    <textarea id="f_description" rows="3" class="w-full bg-black border border-gold/30 px-4 py-2.5 text-sm resize-none"></textarea>
+                </div>
+                <div class="flex items-center gap-6 sm:col-span-2 text-sm">
+                    <label class="flex items-center gap-2 cursor-pointer"><input id="f_featured" type="checkbox" class="accent-gold"> Featured</label>
+                    <label class="flex items-center gap-2 cursor-pointer"><input id="f_new" type="checkbox" class="accent-gold"> New arrival</label>
+                </div>
+                <p id="modalError" class="text-crimson text-sm hidden sm:col-span-2"></p>
+                <div class="sm:col-span-2 flex justify-end gap-3 pt-2">
+                    <button type="button" id="cancelModal" class="px-5 py-2.5 border border-gold/30 text-sm uppercase tracking-wider hover:border-gold">Cancel</button>
+                    <button type="submit" id="saveBtn" class="px-6 py-2.5 bg-gold text-black text-sm uppercase tracking-wider hover:bg-crimson hover:text-white transition-all">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] px-6 py-3 text-sm uppercase tracking-wider translate-y-24 opacity-0 transition-all duration-500 pointer-events-none"></div>
+
+    <script src="/js/admin.js"></script>
+</body>
+</html>

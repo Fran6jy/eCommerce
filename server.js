@@ -3,8 +3,10 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import fs from 'fs';
 import dotenv from 'dotenv';
+
+import * as store from './lib/store.js';
+import { login, authMiddleware, isConfigured } from './lib/auth.js';
 
 // Load environment variables
 dotenv.config();
@@ -21,106 +23,139 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/data', express.static('data'));
 
-// Load products data
-let productsData = { products: [], collections: [] };
-try {
-    const dataPath = join(__dirname, 'data', 'products.json');
-    const rawData = fs.readFileSync(dataPath, 'utf8');
-    productsData = JSON.parse(rawData);
-} catch (error) {
-    console.error('Error loading products data:', error);
-}
-
-// API Routes
-
-// Get all products and collections
-app.get('/api/products', (req, res) => {
-    res.json(productsData);
-});
-
-// Get single product
-app.get('/api/products/:id', (req, res) => {
-    const product = productsData.products.find(p => p.id === req.params.id);
-    if (!product) {
-        return res.status(404).json({ error: 'Product not found' });
+// Ensure the storage layer (MongoDB when configured) is ready before any
+// request is handled. init() is cached, so this is cheap after the first call.
+app.use(async (req, res, next) => {
+    try {
+        await store.init();
+        next();
+    } catch (err) {
+        console.error('Storage init failed:', err.message);
+        res.status(503).json({ error: 'Storage unavailable' });
     }
+});
+
+const asyncRoute = (fn) => (req, res) => fn(req, res).catch((err) => {
+    console.error(err);
+    const status = err.code === 'VALIDATION' ? 400 : err.code === 'NOT_CONFIGURED' ? 503 : 500;
+    res.status(status).json({ error: err.message || 'Server error' });
+});
+
+/* ============================ PUBLIC API ============================ */
+
+// All products + collections
+app.get('/api/products', asyncRoute(async (req, res) => {
+    const [products, collections] = [await store.listProducts(), store.getCollections()];
+    res.json({ products, collections });
+}));
+
+// Featured / new / search / category MUST be declared before "/:id"
+app.get('/api/products/featured', asyncRoute(async (req, res) => {
+    const products = await store.listProducts();
+    res.json(products.filter((p) => p.featured));
+}));
+
+app.get('/api/products/new', asyncRoute(async (req, res) => {
+    const products = await store.listProducts();
+    res.json(products.filter((p) => p.new));
+}));
+
+app.get('/api/products/search', asyncRoute(async (req, res) => {
+    const q = (req.query.q || '').toLowerCase();
+    const products = await store.listProducts();
+    res.json(products.filter((p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q)
+    ));
+}));
+
+app.get('/api/products/category/:category', asyncRoute(async (req, res) => {
+    const products = await store.listProducts();
+    res.json(products.filter((p) => p.category === req.params.category));
+}));
+
+app.get('/api/products/:id', asyncRoute(async (req, res) => {
+    const product = await store.getProduct(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
     res.json(product);
-});
+}));
 
-// Get products by category
-app.get('/api/products/category/:category', (req, res) => {
-    const filtered = productsData.products.filter(
-        p => p.category === req.params.category
-    );
-    res.json(filtered);
-});
-
-// Get featured products
-app.get('/api/products/featured', (req, res) => {
-    const featured = productsData.products.filter(p => p.featured);
-    res.json(featured);
-});
-
-// Get new products
-app.get('/api/products/new', (req, res) => {
-    const newProducts = productsData.products.filter(p => p.new);
-    res.json(newProducts);
-});
-
-// Search products
-app.get('/api/products/search', (req, res) => {
-    const query = req.query.q?.toLowerCase() || '';
-    const results = productsData.products.filter(p => 
-        p.name.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query) ||
-        p.category.toLowerCase().includes(query)
-    );
-    res.json(results);
-});
-
-// Stripe checkout endpoint (placeholder for real integration)
-app.post('/api/checkout', (req, res) => {
-    const { items, customerInfo } = req.body;
-    
-    // In production, this would create a Stripe checkout session
-    // For demo purposes, we'll return a mock response
+// Checkout (demo). Decrements inventory for purchased items.
+app.post('/api/checkout', asyncRoute(async (req, res) => {
+    const { items = [] } = req.body || {};
+    await store.decrementStock(items);
     res.json({
         success: true,
         message: 'Checkout session created (demo mode)',
         orderId: `order_${Date.now()}`,
-        total: items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+        total: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
     });
-});
+}));
 
-// Newsletter subscription endpoint
 app.post('/api/newsletter', (req, res) => {
-    const { name, email } = req.body;
-    
-    // In production, this would add to your email service (Mailchimp, etc.)
+    const { name, email } = req.body || {};
     console.log(`New subscriber: ${name} <${email}>`);
-    
-    res.json({
-        success: true,
-        message: 'Welcome to the Chapter. Signed in Strength.'
-    });
+    res.json({ success: true, message: 'Welcome to the Chapter. Signed in Strength.' });
 });
 
-// Contact form endpoint
 app.post('/api/contact', (req, res) => {
-    const { name, email, message } = req.body;
-    
-    // In production, this would send an email or save to database
+    const { name, email } = req.body || {};
     console.log(`Contact form submission from ${name} <${email}>`);
-    
-    res.json({
-        success: true,
-        message: 'Your message has been received. We will respond shortly.'
-    });
+    res.json({ success: true, message: 'Your message has been received. We will respond shortly.' });
 });
 
-// Health check
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({ status: 'ok', storage: store.storageMode, adminConfigured: isConfigured(), timestamp: new Date().toISOString() });
+});
+
+/* ============================ ADMIN API ============================ */
+
+// Login -> JWT
+app.post('/admin/login', asyncRoute(async (req, res) => {
+    const { username, password } = req.body || {};
+    const token = login(username, password);
+    if (!token) return res.status(401).json({ error: 'Invalid credentials' });
+    res.json({ token, expiresIn: '8h' });
+}));
+
+// Full product list (with stock) for the admin table
+app.get('/admin/products', authMiddleware, asyncRoute(async (req, res) => {
+    res.json({ products: await store.listProducts(), storage: store.storageMode, lowStockThreshold: store.LOW_STOCK_THRESHOLD });
+}));
+
+// Create
+app.post('/admin/product', authMiddleware, asyncRoute(async (req, res) => {
+    const product = await store.createProduct(req.body || {});
+    res.status(201).json(product);
+}));
+
+// Update
+app.put('/admin/product/:id', authMiddleware, asyncRoute(async (req, res) => {
+    const product = await store.updateProduct(req.params.id, req.body || {});
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json(product);
+}));
+
+// Delete
+app.delete('/admin/product/:id', authMiddleware, asyncRoute(async (req, res) => {
+    const ok = await store.deleteProduct(req.params.id);
+    if (!ok) return res.status(404).json({ error: 'Product not found' });
+    res.json({ success: true });
+}));
+
+// Update stock
+app.patch('/admin/product/:id/stock', authMiddleware, asyncRoute(async (req, res) => {
+    const product = await store.setStock(req.params.id, req.body?.stock);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json(product);
+}));
+
+/* ============================ PAGES ============================ */
+
+// Admin panel page
+app.get('/admin', (req, res) => {
+    res.sendFile(join(__dirname, 'public', 'admin.html'));
 });
 
 // Serve index.html for all other routes (SPA support)
@@ -137,9 +172,8 @@ if (!process.env.VERCEL) {
 ║   🌹 THE BLACK ROSE SIGNATURE                     ║
 ║                                                   ║
 ║   Server running on http://localhost:${PORT}        ║
-║                                                   ║
-║   Born in darkness. Bloomed in silence.           ║
-║   Signed in strength.                             ║
+║   Admin panel:  http://localhost:${PORT}/admin      ║
+║   Storage mode: ${store.storageMode.padEnd(34)}║
 ║                                                   ║
 ╚═══════════════════════════════════════════════════╝
         `);

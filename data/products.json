@@ -9,7 +9,14 @@
       "image": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80",
       "featured": true,
       "new": false,
-      "sizes": ["XS", "S", "M", "L", "XL"]
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "stock": 24
     },
     {
       "id": "br-002",
@@ -20,7 +27,13 @@
       "image": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&q=80",
       "featured": true,
       "new": true,
-      "sizes": ["XS", "S", "M", "L"]
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "stock": 8
     },
     {
       "id": "br-003",
@@ -31,7 +44,13 @@
       "image": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&q=80",
       "featured": false,
       "new": false,
-      "sizes": ["S", "M", "L", "XL"]
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "stock": 15
     },
     {
       "id": "br-004",
@@ -39,10 +58,13 @@
       "description": "Gold-plated sterling silver. A reminder that beauty and strength coexist.",
       "price": 275,
       "category": "Accessories",
-      "image": "https://images.unsplash.com/photo-1599643478518-17488fbbcd75?w=800&q=80",
+      "image": "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80",
       "featured": true,
       "new": false,
-      "sizes": ["One Size"]
+      "sizes": [
+        "One Size"
+      ],
+      "stock": 0
     },
     {
       "id": "br-005",
@@ -53,7 +75,10 @@
       "image": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80",
       "featured": false,
       "new": true,
-      "sizes": ["One Size"]
+      "sizes": [
+        "One Size"
+      ],
+      "stock": 6
     },
     {
       "id": "br-006",
@@ -64,7 +89,12 @@
       "image": "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=800&q=80",
       "featured": false,
       "new": false,
-      "sizes": ["S", "M", "L"]
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "stock": 30
     },
     {
       "id": "br-007",
@@ -75,7 +105,11 @@
       "image": "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80",
       "featured": true,
       "new": false,
-      "sizes": ["50ml", "100ml"]
+      "sizes": [
+        "50ml",
+        "100ml"
+      ],
+      "stock": 18
     },
     {
       "id": "br-008",
@@ -86,7 +120,11 @@
       "image": "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=800&q=80",
       "featured": false,
       "new": true,
-      "sizes": ["50ml", "100ml"]
+      "sizes": [
+        "50ml",
+        "100ml"
+      ],
+      "stock": 11
     },
     {
       "id": "br-009",
@@ -97,7 +135,10 @@
       "image": "https://images.unsplash.com/photo-1602825389600-6c8a95a1f4c9?w=800&q=80",
       "featured": false,
       "new": false,
-      "sizes": ["One Size"]
+      "sizes": [
+        "One Size"
+      ],
+      "stock": 40
     },
     {
       "id": "br-010",
@@ -108,7 +149,11 @@
       "image": "https://images.unsplash.com/photo-1584100936595-c0654b55a2e6?w=800&q=80",
       "featured": false,
       "new": false,
-      "sizes": ["18x18", "20x20"]
+      "sizes": [
+        "18x18",
+        "20x20"
+      ],
+      "stock": 3
     },
     {
       "id": "br-011",
@@ -119,7 +164,10 @@
       "image": "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&q=80",
       "featured": true,
       "new": true,
-      "sizes": ["One Size"]
+      "sizes": [
+        "One Size"
+      ],
+      "stock": 5
     },
     {
       "id": "br-012",
@@ -130,7 +178,10 @@
       "image": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80",
       "featured": false,
       "new": false,
-      "sizes": ["One Size"]
+      "sizes": [
+        "One Size"
+      ],
+      "stock": 50
     }
   ],
   "collections": [
