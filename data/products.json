@@ -1,0 +1,168 @@
+{
+  "products": [
+    {
+      "id": "br-001",
+      "name": "Black Rose Hoodie",
+      "description": "Designed for those who move in silence but leave impact everywhere. Crafted from premium cotton blend with embroidered rose emblem.",
+      "price": 185,
+      "category": "Apparel",
+      "image": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80",
+      "featured": true,
+      "new": false,
+      "sizes": ["XS", "S", "M", "L", "XL"]
+    },
+    {
+      "id": "br-002",
+      "name": "Crimson Silk Dress",
+      "description": "A statement of rebirth. Flowing silk that whispers elegance and commands attention.",
+      "price": 425,
+      "category": "Apparel",
+      "image": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&q=80",
+      "featured": true,
+      "new": true,
+      "sizes": ["XS", "S", "M", "L"]
+    },
+    {
+      "id": "br-003",
+      "name": "Midnight Blazer",
+      "description": "Tailored perfection for those who wear their strength openly. Gold-thread detailing.",
+      "price": 595,
+      "category": "Apparel",
+      "image": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&q=80",
+      "featured": false,
+      "new": false,
+      "sizes": ["S", "M", "L", "XL"]
+    },
+    {
+      "id": "br-004",
+      "name": "Rose Thorn Necklace",
+      "description": "Gold-plated sterling silver. A reminder that beauty and strength coexist.",
+      "price": 275,
+      "category": "Accessories",
+      "image": "https://images.unsplash.com/photo-1599643478518-17488fbbcd75?w=800&q=80",
+      "featured": true,
+      "new": false,
+      "sizes": ["One Size"]
+    },
+    {
+      "id": "br-005",
+      "name": "Velvet Rose Clutch",
+      "description": "Deep burgundy velvet with gold clasp. For nights when silence speaks loudest.",
+      "price": 325,
+      "category": "Accessories",
+      "image": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80",
+      "featured": false,
+      "new": true,
+      "sizes": ["One Size"]
+    },
+    {
+      "id": "br-006",
+      "name": "Signature Leather Belt",
+      "description": "Italian leather with rose-embossed buckle. The finishing touch to power.",
+      "price": 165,
+      "category": "Accessories",
+      "image": "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=800&q=80",
+      "featured": false,
+      "new": false,
+      "sizes": ["S", "M", "L"]
+    },
+    {
+      "id": "br-007",
+      "name": "Noir Essence Parfum",
+      "description": "Notes of black rose, amber, and midnight jasmine. A scent that lingers like memory.",
+      "price": 215,
+      "category": "Fragrance",
+      "image": "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80",
+      "featured": true,
+      "new": false,
+      "sizes": ["50ml", "100ml"]
+    },
+    {
+      "id": "br-008",
+      "name": "Crimson Bloom Eau de Parfum",
+      "description": "Bold. Unapologetic. Eternal. The fragrance of transformation.",
+      "price": 245,
+      "category": "Fragrance",
+      "image": "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=800&q=80",
+      "featured": false,
+      "new": true,
+      "sizes": ["50ml", "100ml"]
+    },
+    {
+      "id": "br-009",
+      "name": "Black Rose Candle",
+      "description": "Hand-poured soy wax with notes of rose, sandalwood, and vanilla. Light your sanctuary.",
+      "price": 85,
+      "category": "Home",
+      "image": "https://images.unsplash.com/photo-1602825389600-6c8a95a1f4c9?w=800&q=80",
+      "featured": false,
+      "new": false,
+      "sizes": ["One Size"]
+    },
+    {
+      "id": "br-010",
+      "name": "Silk Rose Throw Pillow",
+      "description": "Embroidered black rose on ivory silk. Elegance for your private chambers.",
+      "price": 145,
+      "category": "Home",
+      "image": "https://images.unsplash.com/photo-1584100936595-c0654b55a2e6?w=800&q=80",
+      "featured": false,
+      "new": false,
+      "sizes": ["18x18", "20x20"]
+    },
+    {
+      "id": "br-011",
+      "name": "Chapter 36 Limited Edition Box",
+      "description": "Curated collection: hoodie, candle, journal, and exclusive art print. Signed and numbered.",
+      "price": 750,
+      "category": "Signature",
+      "image": "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&q=80",
+      "featured": true,
+      "new": true,
+      "sizes": ["One Size"]
+    },
+    {
+      "id": "br-012",
+      "name": "Rebirth Journal",
+      "description": "Leather-bound with gold-edged pages. Write your chapter. Become your story.",
+      "price": 95,
+      "category": "Signature",
+      "image": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80",
+      "featured": false,
+      "new": false,
+      "sizes": ["One Size"]
+    }
+  ],
+  "collections": [
+    {
+      "id": "col-apparel",
+      "name": "Apparel",
+      "description": "Wear your identity",
+      "image": "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80"
+    },
+    {
+      "id": "col-accessories",
+      "name": "Accessories",
+      "description": "Details that define you",
+      "image": "https://images.unsplash.com/photo-1576053139778-7e32f2ae3cfd?w=800&q=80"
+    },
+    {
+      "id": "col-fragrance",
+      "name": "Fragrance",
+      "description": "Scents of transformation",
+      "image": "https://images.unsplash.com/photo-1594035910387-fea4779426e9?w=800&q=80"
+    },
+    {
+      "id": "col-home",
+      "name": "Home Collection",
+      "description": "Sanctuary essentials",
+      "image": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80"
+    },
+    {
+      "id": "col-signature",
+      "name": "Signature Editions",
+      "description": "Limited and legendary",
+      "image": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80"
+    }
+  ]
+}
