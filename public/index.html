@@ -1,1 +1,300 @@
-<!DOCTYPE html><html><head><title>The Black Rose Signature</title></head><body><h1>Loading...</h1></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Black Rose Signature — Born in darkness. Bloomed in silence.</title>
+    <meta name="description" content="The Black Rose Signature — a luxury lifestyle brand. Born in darkness. Bloomed in silence. Signed in strength.">
+
+    <!-- Open Graph / SEO -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Black Rose Signature">
+    <meta property="og:description" content="Born in darkness. Bloomed in silence. Signed in strength.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=1200&q=80">
+    <meta name="theme-color" content="#0A0A0A">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind (Play CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        black: '#0A0A0A',
+                        burgundy: '#3B0A0A',
+                        'burgundy-dark': '#2A0505',
+                        crimson: '#C8102E',
+                        gold: '#D4AF37',
+                        ivory: '#F5F1E8',
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body class="bg-black text-ivory font-sans antialiased">
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading">
+        <div class="text-center">
+            <div class="loading-rose">🌹</div>
+            <p class="mt-4 text-gold font-serif tracking-[0.3em] text-sm uppercase">The Black Rose Signature</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <a href="#home" class="font-serif text-xl md:text-2xl tracking-[0.2em] text-ivory">
+                THE BLACK ROSE <span class="text-gold">·</span> SIGNATURE
+            </a>
+            <div class="hidden lg:flex items-center space-x-8 text-sm uppercase tracking-[0.15em] font-light">
+                <a href="#home" class="nav-link relative">Home</a>
+                <a href="#about" class="nav-link relative">About</a>
+                <a href="#collections" class="nav-link relative">Collections</a>
+                <a href="#chapter36" class="nav-link relative">Chapter 36</a>
+                <a href="#shop" class="nav-link relative">Shop</a>
+                <a href="#contact" class="nav-link relative">Contact</a>
+            </div>
+            <div class="flex items-center space-x-5">
+                <button id="searchBtn" aria-label="Search" class="hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                </button>
+                <button id="cartBtn" aria-label="Cart" class="relative hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-.534 1.838-1.659 2.04-2.913l.86-5.337a1.875 1.875 0 0 0-1.85-2.175H5.106M7.5 14.25 5.106 5.272M6 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
+                    <span id="cartCount" class="absolute -top-2 -right-2 bg-crimson text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                </button>
+                <button id="mobileMenuBtn" aria-label="Menu" class="lg:hidden hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-0 z-[60] bg-black/98 backdrop-blur-lg translate-x-full transition-transform duration-500 lg:hidden">
+        <div class="flex justify-end p-6">
+            <button id="closeMobileMenu" aria-label="Close menu" class="text-ivory hover:text-gold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <nav class="flex flex-col items-center justify-center space-y-8 mt-16 text-2xl font-serif tracking-[0.2em]">
+            <a href="#home" class="mobile-link hover:text-gold transition-colors">Home</a>
+            <a href="#about" class="mobile-link hover:text-gold transition-colors">About</a>
+            <a href="#collections" class="mobile-link hover:text-gold transition-colors">Collections</a>
+            <a href="#chapter36" class="mobile-link hover:text-gold transition-colors">Chapter 36</a>
+            <a href="#shop" class="mobile-link hover:text-gold transition-colors">Shop</a>
+            <a href="#contact" class="mobile-link hover:text-gold transition-colors">Contact</a>
+        </nav>
+    </div>
+
+    <!-- Hero -->
+    <header id="home" class="hero-section flex items-center justify-center text-center overflow-hidden">
+        <div class="hero-image absolute inset-0" style="background-image:url('https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=1600&q=80')"></div>
+        <div class="hero-bg absolute inset-0"></div>
+        <div class="hero-particles absolute inset-0"></div>
+        <div id="petals" class="absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 px-6 max-w-4xl">
+            <p class="hero-eyebrow text-gold uppercase tracking-[0.5em] text-xs md:text-sm mb-6">Chapter 36 · A New Beginning</p>
+            <h1 class="hero-title font-serif text-5xl md:text-7xl lg:text-8xl font-light leading-tight mb-6">THE BLACK ROSE<br><span class="gradient-text">SIGNATURE</span></h1>
+            <p class="hero-tagline font-serif italic text-xl md:text-2xl text-ivory/80 mb-12">Born in darkness. Bloomed in silence. Signed in strength.</p>
+            <div class="hero-buttons flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#about" class="btn-secondary inline-block px-10 py-4 border border-gold text-gold text-sm">Know Your Worth</a>
+                <a href="#shop" class="btn-primary inline-block px-10 py-4 bg-burgundy text-ivory text-sm">Explore Collection</a>
+            </div>
+        </div>
+        <a href="#about" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 scroll-hint text-gold/70" aria-label="Scroll down">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+        </a>
+    </header>
+
+    <!-- About -->
+    <section id="about" class="py-28 px-6 relative">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div class="story-block relative">
+                <div class="aspect-[4/5] bg-cover bg-center rounded-sm overflow-hidden" style="background-image:url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=900&q=80')">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                </div>
+                <div class="absolute -bottom-6 -right-6 hidden md:block text-8xl opacity-90 drop-shadow-[0_0_25px_rgba(212,175,55,0.3)]">🌹</div>
+            </div>
+            <div class="story-block">
+                <p class="text-gold uppercase tracking-[0.4em] text-xs mb-5">The Philosophy</p>
+                <h2 class="font-serif text-4xl md:text-5xl font-light mb-8 leading-tight">This is not fashion.<br>This is identity.</h2>
+                <p class="text-ivory/70 font-light leading-relaxed mb-6">The Black Rose Signature is a chapter of becoming — designed for those who move in silence but leave impact everywhere. Every piece is a statement of rebirth, crafted for the few who understand that true power needs no noise.</p>
+                <div class="grid grid-cols-2 gap-6 mt-10">
+                    <div class="value-item p-5 border border-gold/20">
+                        <h3 class="font-serif text-gold text-xl mb-1">Strength</h3>
+                        <p class="text-ivory/50 text-sm font-light">Worn, not spoken.</p>
+                    </div>
+                    <div class="value-item p-5 border border-gold/20">
+                        <h3 class="font-serif text-gold text-xl mb-1">Rebirth</h3>
+                        <p class="text-ivory/50 text-sm font-light">From darkness, bloom.</p>
+                    </div>
+                    <div class="value-item p-5 border border-gold/20">
+                        <h3 class="font-serif text-gold text-xl mb-1">Elegance</h3>
+                        <p class="text-ivory/50 text-sm font-light">Timeless by design.</p>
+                    </div>
+                    <div class="value-item p-5 border border-gold/20">
+                        <h3 class="font-serif text-gold text-xl mb-1">Identity</h3>
+                        <p class="text-ivory/50 text-sm font-light">Signed in strength.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Collections -->
+    <section id="collections" class="py-28 px-6 bg-burgundy-dark/30">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <p class="text-gold uppercase tracking-[0.4em] text-xs mb-4">Curated Worlds</p>
+                <h2 class="font-serif text-4xl md:text-5xl font-light">The Collections</h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"><!-- collections injected by JS --></div>
+        </div>
+    </section>
+
+    <!-- Chapter 36 -->
+    <section id="chapter36" class="py-28 px-6 relative overflow-hidden">
+        <div class="chapter-bg absolute inset-0" style="background-image:url('https://images.unsplash.com/photo-1502810365585-56ac0c8a8b3e?w=1600&q=80')"></div>
+        <div class="absolute inset-0 bg-black/80"></div>
+        <div class="max-w-4xl mx-auto relative z-10 text-center">
+            <p class="text-gold uppercase tracking-[0.4em] text-xs mb-5 story-block">The Story</p>
+            <h2 class="chapter-title font-serif text-4xl md:text-6xl font-light mb-10 story-block">Chapter 36:<br>No Apologies Left</h2>
+            <div class="space-y-10 text-lg md:text-xl font-serif italic text-ivory/80 leading-relaxed">
+                <p class="story-block">"This is where everything changes."</p>
+                <p class="story-block">The moment silence became power. The night the rose learned it could bloom in the dark, and decided it no longer needed permission.</p>
+                <p class="story-block">A chapter of becoming — for those who turned their scars into signatures.</p>
+            </div>
+            <a href="#shop" class="story-block inline-block mt-14 px-10 py-4 border border-gold text-gold text-sm uppercase tracking-[0.15em] hover:bg-gold hover:text-black transition-all duration-500">Enter the Chapter</a>
+        </div>
+    </section>
+
+    <!-- Shop -->
+    <section id="shop" class="py-28 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <p class="text-gold uppercase tracking-[0.4em] text-xs mb-4">The Boutique</p>
+                <h2 class="font-serif text-4xl md:text-5xl font-light">Shop the Signature</h2>
+            </div>
+
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-12">
+                <div class="flex flex-wrap gap-2" id="filterBar">
+                    <button class="filter-btn active px-5 py-2 border border-gold/30 text-sm uppercase tracking-wider transition-all" data-filter="all">All</button>
+                    <button class="filter-btn px-5 py-2 border border-gold/30 text-sm uppercase tracking-wider transition-all" data-filter="Apparel">Apparel</button>
+                    <button class="filter-btn px-5 py-2 border border-gold/30 text-sm uppercase tracking-wider transition-all" data-filter="Accessories">Accessories</button>
+                    <button class="filter-btn px-5 py-2 border border-gold/30 text-sm uppercase tracking-wider transition-all" data-filter="Fragrance">Fragrance</button>
+                    <button class="filter-btn px-5 py-2 border border-gold/30 text-sm uppercase tracking-wider transition-all" data-filter="Home">Home</button>
+                    <button class="filter-btn px-5 py-2 border border-gold/30 text-sm uppercase tracking-wider transition-all" data-filter="Signature">Signature</button>
+                </div>
+                <select id="sortSelect" class="bg-black border border-gold/30 px-4 py-2 text-sm uppercase tracking-wider text-ivory">
+                    <option value="featured">Featured</option>
+                    <option value="newest">New Arrivals</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                </select>
+            </div>
+
+            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"><!-- products injected by JS --></div>
+        </div>
+    </section>
+
+    <!-- Newsletter / Footer -->
+    <footer id="contact" class="pt-24 pb-10 px-6 bg-burgundy-dark/40 border-t border-gold/10">
+        <div class="max-w-3xl mx-auto text-center mb-20">
+            <p class="text-gold uppercase tracking-[0.4em] text-xs mb-4">Join the Chapter</p>
+            <h2 class="font-serif text-3xl md:text-4xl font-light mb-4">Be part of the story.</h2>
+            <p class="text-ivory/60 font-light mb-8">Early access to drops, private chapters, and signed editions.</p>
+            <form id="newsletterForm" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                <input type="text" name="name" placeholder="Your name" required class="flex-1 bg-black border border-gold/30 px-5 py-3 text-sm placeholder:text-ivory/30 focus:border-gold">
+                <input type="email" name="email" placeholder="Your email" required class="flex-1 bg-black border border-gold/30 px-5 py-3 text-sm placeholder:text-ivory/30 focus:border-gold">
+                <button type="submit" class="px-8 py-3 bg-gold text-black uppercase tracking-wider text-sm hover:bg-crimson hover:text-white transition-all duration-300">Join</button>
+            </form>
+        </div>
+        <div class="max-w-7xl mx-auto grid sm:grid-cols-3 gap-8 items-center border-t border-gold/10 pt-10">
+            <div class="text-center sm:text-left">
+                <p class="font-serif text-lg tracking-[0.2em]">THE BLACK ROSE SIGNATURE</p>
+                <p class="text-ivory/40 text-sm font-light mt-1">Signed in Strength. 🌹</p>
+            </div>
+            <div class="flex justify-center gap-6 text-sm uppercase tracking-wider text-ivory/60">
+                <a href="#shop" class="hover:text-gold transition-colors">Shop</a>
+                <a href="#about" class="hover:text-gold transition-colors">About</a>
+                <a href="#chapter36" class="hover:text-gold transition-colors">Story</a>
+            </div>
+            <div class="flex justify-center sm:justify-end gap-5">
+                <a href="#" aria-label="Instagram" class="text-ivory/60 hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1Zm0 5.3a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Zm0 7.4a2.9 2.9 0 1 1 0-5.8 2.9 2.9 0 0 1 0 5.8Zm5.7-7.6a1.05 1.05 0 1 1-2.1 0 1.05 1.05 0 0 1 2.1 0Z"/></svg>
+                </a>
+                <a href="#" aria-label="TikTok" class="text-ivory/60 hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M16.5 3c.3 2.1 1.5 3.6 3.5 3.8v2.4c-1.2.1-2.3-.3-3.5-1v6.4c0 3.3-2.4 5.4-5.4 5.4-2.7 0-4.8-1.9-4.8-4.6 0-2.9 2.4-4.7 5.4-4.4v2.5c-.4-.1-.9-.2-1.3-.1-1.1.1-1.9.8-1.9 1.9 0 1.2.9 2 2 2 1.3 0 2.1-1 2.1-2.5V3h3.4Z"/></svg>
+                </a>
+            </div>
+        </div>
+        <p class="text-center text-ivory/30 text-xs mt-10">© 2026 The Black Rose Signature. All rights reserved.</p>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-black border-l border-gold/20 z-[70] translate-x-full transition-transform duration-500 flex flex-col">
+        <div class="flex items-center justify-between p-6 border-b border-gold/20">
+            <h3 class="font-serif text-2xl">Your Cart</h3>
+            <button id="closeCart" aria-label="Close cart" class="hover:text-gold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div id="cartItems" class="flex-1 overflow-y-auto p-6 space-y-5"></div>
+        <div class="p-6 border-t border-gold/20">
+            <div class="flex justify-between items-center mb-5">
+                <span class="uppercase tracking-wider text-sm text-ivory/60">Total</span>
+                <span id="cartTotal" class="font-serif text-2xl text-gold">$0.00</span>
+            </div>
+            <button id="checkoutBtn" disabled class="w-full py-4 bg-gold text-black uppercase tracking-[0.15em] text-sm hover:bg-crimson hover:text-white transition-all duration-500 disabled:opacity-40 disabled:cursor-not-allowed">Checkout</button>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="searchModal" class="hidden fixed inset-0 z-[80] bg-black/95 backdrop-blur-md p-6 overflow-y-auto">
+        <div class="max-w-4xl mx-auto pt-20">
+            <div class="flex items-center gap-4 border-b border-gold/30 pb-4 mb-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                <input id="searchInput" type="text" placeholder="Search the signature..." class="flex-1 bg-transparent text-2xl font-serif placeholder:text-ivory/30 focus:outline-none">
+                <button id="closeSearch" aria-label="Close search" class="hover:text-gold">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div id="searchResults" class="grid grid-cols-2 md:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+    <!-- Quick View Modal -->
+    <div id="quickViewModal" class="hidden fixed inset-0 z-[80] bg-black/90 backdrop-blur-md p-6 overflow-y-auto">
+        <div class="max-w-4xl mx-auto mt-16 bg-black border border-gold/20 relative">
+            <button id="closeQuickView" aria-label="Close" class="absolute top-4 right-4 z-10 hover:text-gold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+            </button>
+            <div id="quickViewContent" class="grid md:grid-cols-2 gap-8 p-8"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[90] bg-gold text-black px-6 py-3 text-sm uppercase tracking-wider translate-y-24 opacity-0 transition-all duration-500 pointer-events-none">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

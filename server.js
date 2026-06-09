@@ -128,9 +128,10 @@ app.get('/{*path}', (req, res) => {
     res.sendFile(join(__dirname, 'public', 'index.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`
+// Start server (only when run directly, e.g. locally — not on Vercel serverless)
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`
 ╔═══════════════════════════════════════════════════╗
 ║                                                   ║
 ║   🌹 THE BLACK ROSE SIGNATURE                     ║
@@ -141,5 +142,9 @@ app.listen(PORT, () => {
 ║   Signed in strength.                             ║
 ║                                                   ║
 ╚═══════════════════════════════════════════════════╝
-    `);
-});
+        `);
+    });
+}
+
+// Export the Express app as the handler for Vercel's serverless runtime
+export default app;
