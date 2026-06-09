@@ -1,0 +1,20 @@
+{
+  "name": "the-black-rose-signature",
+  "version": "1.0.0",
+  "description": "Luxury e-commerce website for The Black Rose Signature brand",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["luxury", "e-commerce", "fashion"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "stripe": "^22.2.0"
+  }
+}
