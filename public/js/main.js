@@ -4,7 +4,8 @@ const state = {
     products: [],
     collections: [],
     currentFilter: 'all',
-    currentSort: 'featured'
+    currentSort: 'featured',
+    selectedSize: null,
 };
 
 const elements = {};
@@ -17,101 +18,99 @@ async function init() {
     renderProducts();
     updateCart();
     setupAnimations();
+    spawnPetals();
+    hideLoading();
 }
 
 function cacheElements() {
-    elements.navbar = document.getElementById('navbar');
-    elements.cartBtn = document.getElementById('cartBtn');
-    elements.cartSidebar = document.getElementById('cartSidebar');
-    elements.closeCart = document.getElementById('closeCart');
-    elements.cartItems = document.getElementById('cartItems');
-    elements.cartTotal = document.getElementById('cartTotal');
-    elements.cartCount = document.getElementById('cartCount');
-    elements.checkoutBtn = document.getElementById('checkoutBtn');
-    elements.productGrid = document.getElementById('productGrid');
+    const ids = ['navbar', 'cartBtn', 'cartSidebar', 'closeCart', 'cartItems', 'cartTotal',
+        'cartCount', 'checkoutBtn', 'productGrid', 'sortSelect', 'mobileMenuBtn', 'mobileMenu',
+        'closeMobileMenu', 'searchBtn', 'searchModal', 'closeSearch', 'searchInput', 'searchResults',
+        'quickViewModal', 'closeQuickView', 'quickViewContent', 'newsletterForm', 'toast',
+        'toastMessage', 'loading', 'petals'];
+    ids.forEach(id => { elements[id] = document.getElementById(id); });
     elements.filterBtns = document.querySelectorAll('.filter-btn');
-    elements.sortSelect = document.getElementById('sortSelect');
-    elements.mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    elements.mobileMenu = document.getElementById('mobileMenu');
-    elements.closeMobileMenu = document.getElementById('closeMobileMenu');
-    elements.searchBtn = document.getElementById('searchBtn');
-    elements.searchModal = document.getElementById('searchModal');
-    elements.closeSearch = document.getElementById('closeSearch');
-    elements.searchInput = document.getElementById('searchInput');
-    elements.searchResults = document.getElementById('searchResults');
-    elements.quickViewModal = document.getElementById('quickViewModal');
-    elements.closeQuickView = document.getElementById('closeQuickView');
-    elements.quickViewContent = document.getElementById('quickViewContent');
-    elements.newsletterForm = document.getElementById('newsletterForm');
-    elements.toast = document.getElementById('toast');
-    elements.toastMessage = document.getElementById('toastMessage');
+    elements.mobileLinks = document.querySelectorAll('.mobile-link');
 }
 
 async function loadData() {
     try {
         const response = await fetch('/api/products');
+        if (!response.ok) throw new Error('api');
         const data = await response.json();
-        state.products = data.products;
-        state.collections = data.collections;
+        state.products = data.products || [];
+        state.collections = data.collections || [];
     } catch (error) {
-        console.error('Error loading data:', error);
-        const fallbackResponse = await fetch('/data/products.json');
-        const data = await fallbackResponse.json();
-        state.products = data.products;
-        state.collections = data.collections;
+        console.warn('API unavailable, falling back to static data:', error);
+        try {
+            const fallback = await fetch('/data/products.json');
+            const data = await fallback.json();
+            state.products = data.products || [];
+            state.collections = data.collections || [];
+        } catch (e) {
+            console.error('Failed to load product data:', e);
+        }
     }
 }
 
 function setupEventListeners() {
     window.addEventListener('scroll', handleScroll);
-    elements.cartBtn?.addEventListener('click', toggleCart);
-    elements.closeCart?.addEventListener('click', toggleCart);
+    elements.cartBtn?.addEventListener('click', openCart);
+    elements.closeCart?.addEventListener('click', closeCart);
     elements.checkoutBtn?.addEventListener('click', handleCheckout);
     elements.mobileMenuBtn?.addEventListener('click', () => elements.mobileMenu.classList.remove('translate-x-full'));
     elements.closeMobileMenu?.addEventListener('click', () => elements.mobileMenu.classList.add('translate-x-full'));
+    elements.mobileLinks.forEach(link => link.addEventListener('click', () => elements.mobileMenu.classList.add('translate-x-full')));
     elements.searchBtn?.addEventListener('click', () => { elements.searchModal.classList.remove('hidden'); elements.searchInput.focus(); });
     elements.closeSearch?.addEventListener('click', () => elements.searchModal.classList.add('hidden'));
     elements.searchInput?.addEventListener('input', handleSearch);
-    elements.closeQuickView?.addEventListener('click', () => { elements.quickViewModal.classList.add('hidden'); elements.quickViewModal.classList.remove('show'); });
+    elements.closeQuickView?.addEventListener('click', closeQuickView);
     elements.filterBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             elements.filterBtns.forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            state.currentFilter = e.target.dataset.filter;
+            e.currentTarget.classList.add('active');
+            state.currentFilter = e.currentTarget.dataset.filter;
             renderProducts();
         });
     });
     elements.sortSelect?.addEventListener('change', (e) => { state.currentSort = e.target.value; renderProducts(); });
     elements.newsletterForm?.addEventListener('submit', handleNewsletterSubmit);
-    elements.quickViewModal?.addEventListener('click', (e) => { if (e.target === elements.quickViewModal) { elements.quickViewModal.classList.add('hidden'); elements.quickViewModal.classList.remove('show'); } });
+    elements.quickViewModal?.addEventListener('click', (e) => { if (e.target === elements.quickViewModal) closeQuickView(); });
     elements.searchModal?.addEventListener('click', (e) => { if (e.target === elements.searchModal) elements.searchModal.classList.add('hidden'); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            elements.searchModal.classList.add('hidden');
+            closeQuickView();
+            closeCart();
+        }
+    });
 }
 
 function handleScroll() {
-    if (window.scrollY > 100) elements.navbar?.classList.add('scrolled');
+    if (window.scrollY > 60) elements.navbar?.classList.add('scrolled');
     else elements.navbar?.classList.remove('scrolled');
 }
 
-function toggleCart() { elements.cartSidebar?.classList.toggle('open'); }
+function openCart() { elements.cartSidebar?.classList.remove('translate-x-full'); }
+function closeCart() { elements.cartSidebar?.classList.add('translate-x-full'); }
 
 function renderCollections() {
     const container = document.querySelector('#collections .grid');
     if (!container) return;
-    container.innerHTML = state.collections.map(collection => `
-        <div class="collection-card group fade-in">
-            <div class="aspect-[4/5] bg-gradient-to-br from-burgundy to-black flex items-center justify-center relative overflow-hidden">
-                <span class="text-7xl group-hover:scale-110 transition-transform duration-700">${collection.image}</span>
-                <div class="collection-overlay">
-                    <div>
-                        <h3 class="text-2xl font-serif text-gold mb-2">${collection.name}</h3>
-                        <p class="text-gray-300 font-light mb-4">${collection.description}</p>
-                        <a href="#shop" class="inline-block px-6 py-2 border border-gold text-gold uppercase tracking-wider text-sm hover:bg-gold hover:text-black transition-all duration-300">Shop Now</a>
-                    </div>
+    container.innerHTML = state.collections.map(c => `
+        <div class="collection-card group fade-in aspect-[4/5]">
+            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image:url('${c.image}')"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+            <div class="collection-overlay">
+                <div>
+                    <h3 class="text-2xl font-serif text-gold mb-1">${c.name}</h3>
+                    <p class="text-ivory/70 font-light mb-4">${c.description}</p>
+                    <a href="#shop" class="inline-block px-6 py-2 border border-gold text-gold uppercase tracking-wider text-xs hover:bg-gold hover:text-black transition-all duration-300">Shop Now</a>
                 </div>
             </div>
         </div>
     `).join('');
-    setTimeout(() => { document.querySelectorAll('#collections .fade-in').forEach((el, i) => { setTimeout(() => el.classList.add('visible'), i * 150); }); }, 100);
+    revealOnScroll(container.querySelectorAll('.fade-in'));
 }
 
 function renderProducts() {
@@ -124,78 +123,91 @@ function renderProducts() {
         case 'newest': filtered.sort((a, b) => (b.new ? 1 : 0) - (a.new ? 1 : 0)); break;
         default: filtered.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
     }
-    elements.productGrid.innerHTML = filtered.map(product => `
+    if (filtered.length === 0) {
+        elements.productGrid.innerHTML = `<p class="col-span-full text-center text-ivory/40 py-16 font-light">No pieces in this chapter yet.</p>`;
+        return;
+    }
+    elements.productGrid.innerHTML = filtered.map(p => `
         <div class="product-card fade-in group">
-            <div class="aspect-[3/4] bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
-                <div class="product-image absolute inset-0 flex items-center justify-center text-8xl">${product.image}</div>
-                ${product.new ? '<span class="absolute top-4 left-4 bg-crimson text-white text-xs uppercase tracking-wider px-3 py-1">New</span>' : ''}
-                ${product.featured && !product.new ? '<span class="absolute top-4 left-4 bg-gold text-black text-xs uppercase tracking-wider px-3 py-1">Featured</span>' : ''}
+            <div class="aspect-[3/4] relative overflow-hidden bg-burgundy-dark">
+                <div class="product-image absolute inset-0 bg-cover bg-center" style="background-image:url('${p.image}')"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                ${p.new ? '<span class="absolute top-3 left-3 bg-crimson text-white text-[10px] uppercase tracking-wider px-3 py-1">New</span>' : ''}
+                ${p.featured && !p.new ? '<span class="absolute top-3 left-3 bg-gold text-black text-[10px] uppercase tracking-wider px-3 py-1">Featured</span>' : ''}
                 <div class="product-actions">
-                    <button onclick="quickView('${product.id}')" class="w-full py-3 bg-gold text-black uppercase tracking-wider text-sm hover:bg-crimson hover:text-white transition-all duration-300">Quick View</button>
+                    <button onclick="quickView('${p.id}')" class="w-full py-3 bg-gold text-black uppercase tracking-wider text-xs hover:bg-crimson hover:text-white transition-all duration-300">Quick View</button>
                 </div>
             </div>
-            <div class="p-4">
-                <h3 class="font-serif text-lg mb-1">${product.name}</h3>
-                <p class="text-gray-400 text-sm mb-2 line-clamp-2">${product.description}</p>
-                <div class="flex justify-between items-center">
-                    <span class="text-gold font-serif text-xl">$${product.price}</span>
-                    <button onclick="addToCart('${product.id}')" class="text-sm uppercase tracking-wider hover:text-gold transition-colors duration-300">Add to Cart</button>
+            <div class="pt-4">
+                <p class="text-gold/60 text-[10px] uppercase tracking-[0.2em] mb-1">${p.category}</p>
+                <h3 class="font-serif text-lg mb-1">${p.name}</h3>
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-gold font-serif text-xl">$${p.price}</span>
+                    <button onclick="addToCart('${p.id}')" class="text-xs uppercase tracking-wider hover:text-gold transition-colors duration-300">Add to Cart +</button>
                 </div>
             </div>
         </div>
     `).join('');
-    setTimeout(() => { document.querySelectorAll('#productGrid .fade-in').forEach((el, i) => { setTimeout(() => el.classList.add('visible'), i * 100); }); }, 100);
+    revealOnScroll(elements.productGrid.querySelectorAll('.fade-in'));
 }
 
 window.quickView = function(productId) {
     const product = state.products.find(p => p.id === productId);
     if (!product) return;
+    state.selectedSize = null;
     elements.quickViewContent.innerHTML = `
-        <div class="aspect-square bg-gradient-to-b from-gray-900 to-black flex items-center justify-center"><span class="text-9xl">${product.image}</span></div>
+        <div class="aspect-square bg-cover bg-center" style="background-image:url('${product.image}')"></div>
         <div class="flex flex-col justify-center">
-            <h2 class="text-4xl font-serif mb-4">${product.name}</h2>
+            <p class="text-gold/60 text-xs uppercase tracking-[0.2em] mb-2">${product.category}</p>
+            <h2 class="text-3xl md:text-4xl font-serif mb-3">${product.name}</h2>
             <p class="text-2xl text-gold font-serif mb-6">$${product.price}</p>
-            <p class="text-gray-300 font-light leading-relaxed mb-8">${product.description}</p>
-            ${product.sizes.length > 0 ? `<div class="mb-6"><label class="block text-sm uppercase tracking-wider mb-3">Size</label><div class="flex flex-wrap gap-2" id="sizeSelector">${product.sizes.map(size => `<button class="size-btn px-4 py-2 border border-gray-600 hover:border-gold transition-colors duration-300" data-size="${size}">${size}</button>`).join('')}</div></div>` : ''}
-            <button onclick="addToCart('${product.id}')" class="w-full py-4 bg-gold text-black uppercase tracking-widest hover:bg-crimson hover:text-white transition-all duration-500">Add to Cart</button>
-            <div class="mt-8 pt-8 border-t border-gray-800"><p class="text-sm text-gray-400">Free shipping on orders over $500</p><p class="text-sm text-gray-400 mt-2">30-day returns</p></div>
+            <p class="text-ivory/70 font-light leading-relaxed mb-8">${product.description}</p>
+            ${product.sizes && product.sizes.length > 0 ? `<div class="mb-8"><label class="block text-xs uppercase tracking-wider mb-3 text-ivory/60">Select Size</label><div class="flex flex-wrap gap-2" id="sizeSelector">${product.sizes.map(s => `<button class="size-btn px-4 py-2 border border-gold/30 text-sm hover:border-gold transition-colors" data-size="${s}">${s}</button>`).join('')}</div></div>` : ''}
+            <button onclick="addToCart('${product.id}')" class="w-full py-4 bg-gold text-black uppercase tracking-[0.15em] text-sm hover:bg-crimson hover:text-white transition-all duration-500">Add to Cart</button>
+            <div class="mt-8 pt-6 border-t border-gold/10 text-ivory/40 text-xs space-y-1">
+                <p>Complimentary shipping on orders over $500</p>
+                <p>30-day returns · Signed and authenticated</p>
+            </div>
         </div>
     `;
     elements.quickViewModal.classList.remove('hidden');
-    elements.quickViewModal.classList.add('show');
     document.querySelectorAll('.size-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.size-btn').forEach(b => { b.classList.remove('border-gold', 'text-gold'); b.classList.add('border-gray-600'); });
-            btn.classList.remove('border-gray-600');
-            btn.classList.add('border-gold', 'text-gold');
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('border-gold', 'text-gold', 'bg-gold/10'));
+            btn.classList.add('border-gold', 'text-gold', 'bg-gold/10');
+            state.selectedSize = btn.dataset.size;
         });
     });
 };
 
+function closeQuickView() { elements.quickViewModal.classList.add('hidden'); }
+
 window.addToCart = function(productId) {
     const product = state.products.find(p => p.id === productId);
     if (!product) return;
-    const existingItem = state.cart.find(item => item.id === productId);
-    if (existingItem) existingItem.quantity += 1;
-    else state.cart.push({ ...product, quantity: 1 });
+    const size = state.selectedSize || (product.sizes && product.sizes[0]) || 'One Size';
+    const key = `${productId}__${size}`;
+    const existing = state.cart.find(item => item.key === key);
+    if (existing) existing.quantity += 1;
+    else state.cart.push({ key, id: product.id, name: product.name, price: product.price, image: product.image, size, quantity: 1 });
     saveCart();
     updateCart();
     showToast(`${product.name} added to cart`);
-    elements.quickViewModal.classList.add('hidden');
-    elements.quickViewModal.classList.remove('show');
+    closeQuickView();
+    state.selectedSize = null;
 };
 
-window.removeFromCart = function(productId) {
-    state.cart = state.cart.filter(item => item.id !== productId);
+window.removeFromCart = function(key) {
+    state.cart = state.cart.filter(item => item.key !== key);
     saveCart();
     updateCart();
 };
 
-window.updateQuantity = function(productId, delta) {
-    const item = state.cart.find(item => item.id === productId);
+window.updateQuantity = function(key, delta) {
+    const item = state.cart.find(item => item.key === key);
     if (!item) return;
     item.quantity += delta;
-    if (item.quantity <= 0) removeFromCart(productId);
+    if (item.quantity <= 0) removeFromCart(key);
     else { saveCart(); updateCart(); }
 };
 
@@ -204,57 +216,144 @@ function saveCart() { localStorage.setItem('cart', JSON.stringify(state.cart)); 
 function updateCart() {
     if (!elements.cartItems) return;
     if (state.cart.length === 0) {
-        elements.cartItems.innerHTML = `<div class="text-center py-12"><span class="text-6xl block mb-4">🛍️</span><p class="text-gray-400 font-light">Your cart is empty</p><a href="#shop" class="inline-block mt-4 text-gold underline">Continue Shopping</a></div>`;
+        elements.cartItems.innerHTML = `<div class="text-center py-16"><span class="text-5xl block mb-4">🥀</span><p class="text-ivory/40 font-light">Your cart is empty</p><button onclick="document.getElementById('closeCart').click()" class="inline-block mt-4 text-gold underline text-sm">Continue Shopping</button></div>`;
         elements.cartTotal.textContent = '$0.00';
         elements.checkoutBtn.disabled = true;
         elements.cartCount.style.opacity = '0';
-    } else {
-        elements.cartItems.innerHTML = state.cart.map(item => `<div class="cart-item"><div class="w-20 h-20 bg-gradient-to-b from-gray-900 to-black flex items-center justify-center text-4xl">${item.image}</div><div><h4 class="font-serif mb-1">${item.name}</h4><p class="text-gold">$${item.price}</p><div class="flex items-center mt-2 space-x-3"><button onclick="updateQuantity('${item.id}', -1)" class="w-8 h-8 border border-gray-600 hover:border-gold transition-colors">&minus;</button><span class="text-sm">${item.quantity}</span><button onclick="updateQuantity('${item.id}', 1)" class="w-8 h-8 border border-gray-600 hover:border-gold transition-colors">&plus;</button></div></div><button onclick="removeFromCart('${item.id}')" class="text-gray-400 hover:text-crimson transition-colors text-xl">&times;</button></div>`).join('');
-        const total = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        elements.cartTotal.textContent = `$${total.toFixed(2)}`;
-        elements.checkoutBtn.disabled = false;
-        elements.cartCount.textContent = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-        elements.cartCount.style.opacity = '1';
+        return;
     }
+    elements.cartItems.innerHTML = state.cart.map(item => `
+        <div class="cart-item">
+            <div class="w-20 h-24 bg-cover bg-center" style="background-image:url('${item.image}')"></div>
+            <div>
+                <h4 class="font-serif text-lg leading-tight">${item.name}</h4>
+                <p class="text-ivory/40 text-xs mb-1">Size: ${item.size}</p>
+                <p class="text-gold">$${item.price}</p>
+                <div class="flex items-center mt-2 space-x-3">
+                    <button onclick="updateQuantity('${item.key}', -1)" class="w-7 h-7 border border-gold/30 hover:border-gold transition-colors">&minus;</button>
+                    <span class="text-sm w-5 text-center">${item.quantity}</span>
+                    <button onclick="updateQuantity('${item.key}', 1)" class="w-7 h-7 border border-gold/30 hover:border-gold transition-colors">&plus;</button>
+                </div>
+            </div>
+            <button onclick="removeFromCart('${item.key}')" class="text-ivory/40 hover:text-crimson transition-colors text-xl self-start">&times;</button>
+        </div>
+    `).join('');
+    const total = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    elements.cartTotal.textContent = `$${total.toFixed(2)}`;
+    elements.checkoutBtn.disabled = false;
+    elements.cartCount.textContent = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+    elements.cartCount.style.opacity = '1';
 }
 
-function handleCheckout() {
+async function handleCheckout() {
     if (state.cart.length === 0) return;
-    const total = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    showToast('Redirecting to checkout...');
-    setTimeout(() => { alert(`Checkout Integration:\n\nTotal: $${total.toFixed(2)}\n\nIn production, this would redirect to Stripe checkout.`); }, 1000);
+    showToast('Preparing your checkout...');
+    try {
+        const res = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: state.cart, customerInfo: {} }),
+        });
+        const data = await res.json();
+        const total = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        alert(`Order received (demo mode)\n\nOrder: ${data.orderId || 'pending'}\nTotal: $${total.toFixed(2)}\n\nIn production this redirects to Stripe checkout.`);
+    } catch (e) {
+        const total = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        alert(`Checkout (demo mode)\n\nTotal: $${total.toFixed(2)}\n\nConnect Stripe keys to enable live payments.`);
+    }
 }
 
 function handleSearch(e) {
     const query = e.target.value.toLowerCase().trim();
     if (!query || query.length < 2) { elements.searchResults.innerHTML = ''; return; }
-    const results = state.products.filter(p => p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query) || p.category.toLowerCase().includes(query));
-    if (results.length === 0) { elements.searchResults.innerHTML = `<div class="col-span-3 text-center py-12"><p class="text-gray-400">No products found</p></div>`; }
-    else { elements.searchResults.innerHTML = results.slice(0, 6).map(product => `<div class="product-card cursor-pointer" onclick="quickView('${product.id}'); document.getElementById('searchModal').classList.add('hidden');"><div class="aspect-square bg-gradient-to-b from-gray-900 to-black flex items-center justify-center text-6xl mb-4">${product.image}</div><h4 class="font-serif text-lg">${product.name}</h4><p class="text-gold">$${product.price}</p></div>`).join(''); }
+    const results = state.products.filter(p =>
+        p.name.toLowerCase().includes(query) ||
+        p.description.toLowerCase().includes(query) ||
+        p.category.toLowerCase().includes(query));
+    if (results.length === 0) {
+        elements.searchResults.innerHTML = `<p class="col-span-full text-center text-ivory/40 py-12">No products found for "${e.target.value}"</p>`;
+        return;
+    }
+    elements.searchResults.innerHTML = results.slice(0, 6).map(p => `
+        <div class="product-card cursor-pointer group" onclick="document.getElementById('searchModal').classList.add('hidden'); quickView('${p.id}');">
+            <div class="aspect-square bg-cover bg-center mb-3" style="background-image:url('${p.image}')"></div>
+            <h4 class="font-serif text-lg">${p.name}</h4>
+            <p class="text-gold">$${p.price}</p>
+        </div>
+    `).join('');
 }
 
 function handleNewsletterSubmit(e) {
     e.preventDefault();
+    const formData = new FormData(e.target);
+    fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: formData.get('name'), email: formData.get('email') }),
+    }).catch(() => {});
     showToast('Welcome to the Chapter. Signed in Strength.');
     e.target.reset();
 }
 
+let toastTimer;
 function showToast(message) {
     elements.toastMessage.textContent = message;
-    elements.toast.classList.add('show');
-    setTimeout(() => { elements.toast.classList.remove('show'); }, 3000);
+    elements.toast.classList.remove('translate-y-24', 'opacity-0');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { elements.toast.classList.add('translate-y-24', 'opacity-0'); }, 3000);
+}
+
+function revealOnScroll(nodes) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => entry.target.classList.add('visible'), i * 80);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+    nodes.forEach(n => observer.observe(n));
 }
 
 function setupAnimations() {
-    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-        gsap.registerPlugin(ScrollTrigger);
-        gsap.to('.hero-title', { opacity: 1, y: 0, duration: 1.5, ease: 'power3.out', delay: 0.5 });
-        gsap.to('.hero-tagline', { opacity: 1, y: 0, duration: 1.5, ease: 'power3.out', delay: 0.8 });
-        gsap.to('.hero-buttons', { opacity: 1, y: 0, duration: 1.5, ease: 'power3.out', delay: 1.1 });
-        gsap.utils.toArray('.story-block').forEach((block) => {
-            gsap.to(block, { scrollTrigger: { trigger: block, start: 'top 80%', toggleClass: 'visible' }, opacity: 1, y: 0, duration: 1, ease: 'power3.out' });
-        });
+    // Generic scroll reveal for static story blocks
+    revealOnScroll(document.querySelectorAll('.story-block'));
+
+    if (typeof gsap !== 'undefined') {
+        gsap.from('.hero-eyebrow', { opacity: 0, y: 20, duration: 1.2, delay: 0.3, ease: 'power3.out' });
+        gsap.from('.hero-title', { opacity: 0, y: 40, duration: 1.4, delay: 0.5, ease: 'power3.out' });
+        gsap.from('.hero-tagline', { opacity: 0, y: 30, duration: 1.4, delay: 0.9, ease: 'power3.out' });
+        gsap.from('.hero-buttons', { opacity: 0, y: 30, duration: 1.4, delay: 1.2, ease: 'power3.out' });
+
+        if (typeof ScrollTrigger !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+            // Hero parallax
+            gsap.to('.hero-image', { yPercent: 25, ease: 'none', scrollTrigger: { trigger: '.hero-section', start: 'top top', end: 'bottom top', scrub: true } });
+            gsap.to('.chapter-bg', { yPercent: 15, ease: 'none', scrollTrigger: { trigger: '#chapter36', start: 'top bottom', end: 'bottom top', scrub: true } });
+        }
     }
+}
+
+function spawnPetals() {
+    if (!elements.petals) return;
+    const petalCount = 14;
+    for (let i = 0; i < petalCount; i++) {
+        const petal = document.createElement('span');
+        petal.className = 'petal';
+        petal.textContent = '🌹';
+        petal.style.left = `${Math.random() * 100}%`;
+        petal.style.animationDuration = `${8 + Math.random() * 10}s`;
+        petal.style.animationDelay = `${Math.random() * 10}s`;
+        petal.style.fontSize = `${10 + Math.random() * 14}px`;
+        petal.style.opacity = `${0.15 + Math.random() * 0.35}`;
+        elements.petals.appendChild(petal);
+    }
+}
+
+function hideLoading() {
+    if (!elements.loading) return;
+    elements.loading.classList.add('loaded');
+    setTimeout(() => elements.loading.remove(), 700);
 }
 
 document.addEventListener('DOMContentLoaded', init);
