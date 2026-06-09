@@ -1,4 +1,5 @@
 // The Black Rose Signature - Main JavaScript
+const LOW_STOCK = 6;
 const state = {
     cart: JSON.parse(localStorage.getItem('cart')) || [],
     products: [],
@@ -127,27 +128,37 @@ function renderProducts() {
         elements.productGrid.innerHTML = `<p class="col-span-full text-center text-ivory/40 py-16 font-light">No pieces in this chapter yet.</p>`;
         return;
     }
-    elements.productGrid.innerHTML = filtered.map(p => `
-        <div class="product-card fade-in group">
+    elements.productGrid.innerHTML = filtered.map(p => {
+        const stock = typeof p.stock === 'number' ? p.stock : null;
+        const soldOut = stock !== null && stock <= 0;
+        const low = stock !== null && stock > 0 && stock <= LOW_STOCK;
+        const badge = soldOut
+            ? '<span class="absolute top-3 left-3 bg-black/80 text-ivory text-[10px] uppercase tracking-wider px-3 py-1 border border-ivory/30">Sold Out</span>'
+            : p.new ? '<span class="absolute top-3 left-3 bg-crimson text-white text-[10px] uppercase tracking-wider px-3 py-1">New</span>'
+            : p.featured ? '<span class="absolute top-3 left-3 bg-gold text-black text-[10px] uppercase tracking-wider px-3 py-1">Featured</span>' : '';
+        const action = soldOut
+            ? '<span class="text-xs uppercase tracking-wider text-ivory/30">Sold Out</span>'
+            : `<button onclick="addToCart('${p.id}')" class="text-xs uppercase tracking-wider hover:text-gold transition-colors duration-300">Add to Cart +</button>`;
+        return `
+        <div class="product-card fade-in group ${soldOut ? 'opacity-70' : ''}">
             <div class="aspect-[3/4] relative overflow-hidden bg-burgundy-dark">
-                <div class="product-image absolute inset-0 bg-cover bg-center" style="background-image:url('${p.image}')"></div>
+                <div class="product-image absolute inset-0 bg-cover bg-center ${soldOut ? 'grayscale' : ''}" style="background-image:url('${p.image}')"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                ${p.new ? '<span class="absolute top-3 left-3 bg-crimson text-white text-[10px] uppercase tracking-wider px-3 py-1">New</span>' : ''}
-                ${p.featured && !p.new ? '<span class="absolute top-3 left-3 bg-gold text-black text-[10px] uppercase tracking-wider px-3 py-1">Featured</span>' : ''}
+                ${badge}
                 <div class="product-actions">
                     <button onclick="quickView('${p.id}')" class="w-full py-3 bg-gold text-black uppercase tracking-wider text-xs hover:bg-crimson hover:text-white transition-all duration-300">Quick View</button>
                 </div>
             </div>
             <div class="pt-4">
-                <p class="text-gold/60 text-[10px] uppercase tracking-[0.2em] mb-1">${p.category}</p>
+                <p class="text-gold/60 text-[10px] uppercase tracking-[0.2em] mb-1">${p.category}${low ? ` · <span class="text-crimson">Only ${stock} left</span>` : ''}</p>
                 <h3 class="font-serif text-lg mb-1">${p.name}</h3>
                 <div class="flex justify-between items-center mt-2">
                     <span class="text-gold font-serif text-xl">$${p.price}</span>
-                    <button onclick="addToCart('${p.id}')" class="text-xs uppercase tracking-wider hover:text-gold transition-colors duration-300">Add to Cart +</button>
+                    ${action}
                 </div>
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
     revealOnScroll(elements.productGrid.querySelectorAll('.fade-in'));
 }
 
@@ -155,15 +166,26 @@ window.quickView = function(productId) {
     const product = state.products.find(p => p.id === productId);
     if (!product) return;
     state.selectedSize = null;
+    const stock = typeof product.stock === 'number' ? product.stock : null;
+    const soldOut = stock !== null && stock <= 0;
+    const low = stock !== null && stock > 0 && stock <= LOW_STOCK;
+    const stockLine = soldOut
+        ? '<p class="text-crimson text-sm uppercase tracking-wider mb-6">Currently sold out</p>'
+        : low ? `<p class="text-crimson text-sm uppercase tracking-wider mb-6">Only ${stock} left in stock</p>`
+        : stock !== null ? '<p class="text-emerald-400/80 text-sm uppercase tracking-wider mb-6">In stock</p>' : '';
+    const ctaButton = soldOut
+        ? '<button disabled class="w-full py-4 bg-ivory/10 text-ivory/40 uppercase tracking-[0.15em] text-sm cursor-not-allowed">Sold Out</button>'
+        : `<button onclick="addToCart('${product.id}')" class="w-full py-4 bg-gold text-black uppercase tracking-[0.15em] text-sm hover:bg-crimson hover:text-white transition-all duration-500">Add to Cart</button>`;
     elements.quickViewContent.innerHTML = `
-        <div class="aspect-square bg-cover bg-center" style="background-image:url('${product.image}')"></div>
+        <div class="aspect-square bg-cover bg-center ${soldOut ? 'grayscale' : ''}" style="background-image:url('${product.image}')"></div>
         <div class="flex flex-col justify-center">
             <p class="text-gold/60 text-xs uppercase tracking-[0.2em] mb-2">${product.category}</p>
             <h2 class="text-3xl md:text-4xl font-serif mb-3">${product.name}</h2>
-            <p class="text-2xl text-gold font-serif mb-6">$${product.price}</p>
+            <p class="text-2xl text-gold font-serif mb-3">$${product.price}</p>
+            ${stockLine}
             <p class="text-ivory/70 font-light leading-relaxed mb-8">${product.description}</p>
             ${product.sizes && product.sizes.length > 0 ? `<div class="mb-8"><label class="block text-xs uppercase tracking-wider mb-3 text-ivory/60">Select Size</label><div class="flex flex-wrap gap-2" id="sizeSelector">${product.sizes.map(s => `<button class="size-btn px-4 py-2 border border-gold/30 text-sm hover:border-gold transition-colors" data-size="${s}">${s}</button>`).join('')}</div></div>` : ''}
-            <button onclick="addToCart('${product.id}')" class="w-full py-4 bg-gold text-black uppercase tracking-[0.15em] text-sm hover:bg-crimson hover:text-white transition-all duration-500">Add to Cart</button>
+            ${ctaButton}
             <div class="mt-8 pt-6 border-t border-gold/10 text-ivory/40 text-xs space-y-1">
                 <p>Complimentary shipping on orders over $500</p>
                 <p>30-day returns · Signed and authenticated</p>
@@ -185,6 +207,10 @@ function closeQuickView() { elements.quickViewModal.classList.add('hidden'); }
 window.addToCart = function(productId) {
     const product = state.products.find(p => p.id === productId);
     if (!product) return;
+    if (typeof product.stock === 'number' && product.stock <= 0) {
+        showToast('This piece is currently sold out');
+        return;
+    }
     const size = state.selectedSize || (product.sizes && product.sizes[0]) || 'One Size';
     const key = `${productId}__${size}`;
     const existing = state.cart.find(item => item.key === key);
